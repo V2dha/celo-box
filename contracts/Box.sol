@@ -2,7 +2,8 @@
 pragma solidity >=0.5.0 <0.8.0;
 
 contract ERC20 { 
-  function balanceOf(address _who) public view returns (uint256);
+  //This function allows the smart contract to store and return the balance of the address provided (_who)
+  function balanceOf(address _who) public view returns (uint256); 
   function transfer(address _to, uint256 _value) public returns (bool);
   function transferFrom(address _from, address _to, uint256 _value) public returns (bool);
 }
