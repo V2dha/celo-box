@@ -22,18 +22,18 @@ contract Box {
 
     address public token_address;
 
-    address public creator;
-    address public receiver;
-
-    uint256 public goal;
+    address public creator;               //address of the cretor of the box
+    address public receiver;              //address of the receiver of the amount collected in the box
+   
+    uint256 public goal;                  //goal is the total amount to be collected
     uint256 public minimal_contribution;
+  
+    uint256 public balance;               //balance is the amount in the box
+    uint256 public contributions_count;   //total number of contributions
 
-    uint256 public balance;
-    uint256 public contributions_count;
-
-    address[] public contributors;
-    mapping(address => bool) public unique_contributors;
-    mapping(address => uint256) public contributions;
+    address[] public contributors;        //addresses of the contributors
+    mapping(address => bool) public unique_contributors; //address mapped to boolean value wheter the contributor is unique or not
+    mapping(address => uint256) public contributions;   //addresses mapped to the value of contribution by each address
 
     modifier isActive() {
         require(active);
@@ -78,19 +78,29 @@ contract Box {
         minimal_contribution = _mininal_contribution;
     }
     
+    //contribute to box
     function contribute(uint256 value) public isActive {
         require(value >= minimal_contribution);
         
         ERC20 token = ERC20(token_address);
+        //msg.sender is the caller of the function
+        //check if the balance of msg.sender's account >= value
         require(token.balanceOf(msg.sender) >= value);
+        //if yes transfer the value from the msg.sender's address to the contract's address
         token.transferFrom(msg.sender, address(this), value);
-
-        contributions_count++;
+        
+        //increase contributions_count
+        contributions_count++;     
+        
+        //not in unique_contributors set true - clarification needed!
         if (!unique_contributors[msg.sender]) {
             unique_contributors[msg.sender] = true;
+            //add the address into contributors
             contributors.push(msg.sender);
         }
-        balance += value;
+        //increase the balance with value contributed
+        balance += value;    
+        //increase the value contributed by the address
         contributions[msg.sender] += value;
     }
     
