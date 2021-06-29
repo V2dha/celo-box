@@ -104,20 +104,25 @@ contract Box {
         contributions[msg.sender] += value;
     }
     
+    //revokeContribution from the box
     function revokeContribution() public contributorOnly {
+        //set amount as the contributions sender has made till now
         uint256 amount = contributions[msg.sender];
 
         ERC20 token = ERC20(token_address);
+        //transfer amount from the box to the sender
         token.transfer(msg.sender, amount);
-
+        
+        //reset the value of contributions made by the sender to 0
         contributions[msg.sender] = 0;
+        //deduct that amount from balance of the box
         balance -= amount;
     }
     
     function deactivate() public isActive creatorOnly {
         active = false;
     }
-
+    
     function finalize() public isActive isComplete creatorOnly {
         ERC20 token = ERC20(token_address);
         token.transfer(receiver, balance);
