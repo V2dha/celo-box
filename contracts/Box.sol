@@ -17,8 +17,8 @@ contract ERC20 {
  */
 contract Box {
 
-    bool public active = true;
-    bool public finalized = false;
+    bool public active = true;            //box is active or not
+    bool public finalized = false;        //True when the receiver would get the total amount of the box
 
     address public token_address;
 
@@ -35,31 +35,37 @@ contract Box {
     mapping(address => bool) public unique_contributors; //address mapped to boolean value wheter the contributor is unique or not
     mapping(address => uint256) public contributions;   //addresses mapped to the value of contribution by each address
 
-    modifier isActive() {
+    //to check if the box is active or not before executing a function
+    modifier isActive() {                   
         require(active);
         _;
     }
 
+    //to check if the box is complete or not before executing a function
     modifier isComplete() {
         require(complete());
         _;
     }
 
+    //to check if the address who called the function is the creator of the box
     modifier creatorOnly() {
         require(msg.sender == creator);
         _;
     }
 
+    //to check if the address who called the function is the receiver of the box
     modifier receiverOnly() {
         require(msg.sender == receiver);
         _;
     }
 
+    //to check if the contributions of an address is greater than 0 in case they want to revoke their contribution
     modifier contributorOnly() {
         require(contributions[msg.sender] > 0);
         _;
     }
     
+    //to check if the box has collected the required amount 
     function complete() private view returns (bool) {
         return balance >= goal;
     }
@@ -119,18 +125,22 @@ contract Box {
         balance -= amount;
     }
     
+    //access control using creatorOnly modifier and isActive to see if the box is active
     function deactivate() public isActive creatorOnly {
         active = false;
     }
     
+    //access control using creatorOnly modifier, isComplete to check if the box has required amount
     function finalize() public isActive isComplete creatorOnly {
         ERC20 token = ERC20(token_address);
+        //transfer the amount collected to the receiver's address
         token.transfer(receiver, balance);
-
+       
         active = false;
         finalized = true;
     }
-
+    
+    //access control using receiverOnly modifier to redeem the total amount collected by the receiver
     function redeem() public isActive isComplete receiverOnly {
         ERC20 token = ERC20(token_address);
         token.transfer(receiver, balance);
@@ -138,7 +148,8 @@ contract Box {
         active = false;
         finalized = true;
     }
-
+  
+    //summary of all the details of the box
     function summary() public view returns(bool, bool, bool, address, uint256, uint256, uint256, uint256, uint256, address, address) {
         return (
             active,
@@ -154,7 +165,8 @@ contract Box {
             receiver
         );
     }
-
+    
+    //to get array of addresses of contributors
     function getContributors() public view returns(address[] memory) {
       return contributors;
     }
