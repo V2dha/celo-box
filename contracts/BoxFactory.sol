@@ -8,23 +8,24 @@ import "./Box.sol";
  * @dev Helper contract for creating Boxes
  */
 contract BoxFactory {
-    event BoxCreated(address indexed owner, address box);
-
+    event BoxCreated(address indexed owner, address box);    //declared BoxCreated event
+    
+    //to create box
     function createBox(
       address token_address,
       uint256 goal,
       uint256 mininal_contribution,
       address receiver
     ) public returns (address) {
-        address owner = msg.sender;
-        address boxAddress = address(new Box(
+        address owner = msg.sender;                    //owner of the new instance of the contract box is the one who created this box
+        address boxAddress = address(new Box(          //creating a new instance of the contract box (similar to creating and deploying a new contract and getting a new address) 
           token_address,
           goal,
           mininal_contribution,
           receiver,
           owner
         ));
-        emit BoxCreated(owner, boxAddress);
-        return boxAddress;
+        emit BoxCreated(owner, boxAddress);            //emitted the event
+        return boxAddress;                             //returns the address of the box
     }
 }
